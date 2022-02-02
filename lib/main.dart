@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:form/secondpage.dart';
 
 import 'models/information.dart';
@@ -40,14 +41,29 @@ class _MyHomePageState extends State<MyHomePage> {
   String dropdownValue = 'Ahmedabad';
   late String name;
   late String number;
+  late String email;
   bool _showError = false;
   final _formKey = GlobalKey<FormState>();
   var items = ["Ahmedabad", "Surat", "Vadodara"];
-
+   bool _ischecked = false;
+  bool _showErrorchckbx = false;
   void _handleGenderChange(String? value) {
     setState(() {
       gender = value!;
     });
+  }
+
+  String? validateEmail(String? value) {
+    // String pattern =
+    //     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+    //     r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+    //     r"{0,253}[a-zA-Z0-9])?)*$";
+    String pattern = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\$";
+    RegExp regex = RegExp(pattern);
+    if (value == null || value.isEmpty || !regex.hasMatch(value))
+      return 'Enter a valid email address';
+    else
+      return null;
   }
 
   @override
@@ -58,147 +74,181 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SafeArea(
         child: Center(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                TextFormField(
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TextFormField(
 
-                  decoration: const InputDecoration(
-                      icon: Icon(Icons.person),
-                      hintText: 'Enter Your Name',
-                      labelText: 'Name'),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please enter your name";
-                    }
-                  },
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                        icon: Icon(Icons.dialpad),
-                        hintText: 'Enter your Number',
-                        labelText: 'PhoneNumber'),
+                        icon: Icon(Icons.person),
+                        hintText: 'Enter Your Name',
+                        labelText: 'Name'),
                     onChanged: (value) {
-                      number = value;
+                      name = value;
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Please enter your Number";
+                        return "Please enter your name";
                       }
-                      if (value.length < 10) {
-                        return "Please enter a valid Number";
+                    },
+                  ),
+                  TextFormField(
+                    // autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.email),
+                        hintText: 'abc@email.com',
+                        labelText: 'E-mail'),
+                    onChanged: (value) {
+                      email = value;
+                    },
+                    validator: (value) => validateEmail(value!)
+                  ),
+                  TextFormField(
+                    // autovalidateMode: AutovalidateMode.always,
+                    keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.dialpad),
+                          hintText: 'Enter your Number',
+                          labelText: 'PhoneNumber'),
+                      onChanged: (value) {
+                        number = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter your Number";
+                        }
+                        if (value.length < 10 ) {
+                          return "Please enter a valid Number";
+                        }
+                      }),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0, top: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                  value: "Male",
+                                  onChanged: _handleGenderChange,
+                                  groupValue: gender),
+                              const Text(
+                                "Male",
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.green),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                  value: "Female",
+                                  onChanged: _handleGenderChange,
+                                  groupValue: gender),
+                              const Text(
+                                "Female",
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.green),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                  value: "Other",
+                                  onChanged: _handleGenderChange,
+                                  groupValue: gender),
+                              const Text(
+                                "Neither",
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.green),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _showError
+                      ? const Text(
+                        "Please select a value ",
+                        style: TextStyle(color: Colors.red),
+                      )
+                      : Container(),
+                  DropdownButton(
+                      value: dropdownValue,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      items: items.map((String e) {
+                        return DropdownMenuItem(
+                          child: Text(
+                            e,
+                            style: const TextStyle(color: Colors.green),
+                          ),
+                          value: e,
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          dropdownValue = value!;
+                        });
                       }
-                    }),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15.0, top: 10),
-                  child: Row(
+                      ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            Radio<String>(
-                                value: "Male",
-                                onChanged: _handleGenderChange,
-                                groupValue: gender),
-                            const Text(
-                              "Male",
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            Radio<String>(
-                                value: "Female",
-                                onChanged: _handleGenderChange,
-                                groupValue: gender),
-                            const Text(
-                              "Female",
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            Radio<String>(
-                                value: "Other",
-                                onChanged: _handleGenderChange,
-                                groupValue: gender),
-                            const Text(
-                              "Neither",
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ),
+                      Checkbox(value: _ischecked,onChanged: (value) {
+                        setState(() {
+                          _ischecked = value!;
+                          if(_ischecked) _showErrorchckbx = false;
+                        });
+                      }),
+                      const Text("Please check this box to continue")
                     ],
                   ),
-                ),
-                _showError
-                    ? const Text(
-                      "Please select a value ",
-                      style: TextStyle(color: Colors.red),
-                    )
-                    : Container(),
-                DropdownButton(
-                    value: dropdownValue,
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    items: items.map((String e) {
-                      return DropdownMenuItem(
-                        child: Text(
-                          e,
-                          style: const TextStyle(color: Colors.green),
-                        ),
-                        value: e,
-                      );
-                    }).toList(),
-                    onChanged: (String? value) {
-                      setState(() {
-                        dropdownValue = value!;
-                      });
-                    }),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: TextButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_formKey.currentState!.validate()) {
-                          person = Info(
-                              city: dropdownValue,
-                              number: number,
-                              name: name,
-                              gender: gender);
-                          if (gender == "null") {
-                            _showError = true;
-                            return;
+                  _showErrorchckbx ?
+                      Text("Please check the above box to Continue ",style: TextStyle(color: Colors.red),):Container(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (_formKey.currentState!.validate()) {
+                            person = Info(
+                                city: dropdownValue,
+                                number: number,
+                                name: name,
+                                gender: gender);
+                            if (gender == "null") {
+                              _showError = true;
+                              return;
+                            }
+                            if(_ischecked == false) {
+                              _showErrorchckbx = true;
+                              return;
+                            }
+                            Navigator.pushNamed(context, '/second_page',
+                                arguments: person);
                           }
-                          Navigator.pushNamed(context, '/second_page',
-                              arguments: person);
-                        }
-                      });
-                    },
-                    style: TextButton.styleFrom(
-                        side: const BorderSide(color: Colors.green)),
-                    child: const Text("Submit"),
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                          side: const BorderSide(color: Colors.green)),
+                      child: const Text("Submit"),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

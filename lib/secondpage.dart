@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-import 'models/information.dart';
+import './models/information.dart';
 
 class SecondPage extends StatelessWidget {
   const SecondPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Info person = ModalRoute.of(context)!.settings.arguments as Info;
+    var person = ModalRoute.of(context)!.settings.arguments as Info;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Second Page"
+        title: const Text("Second Page"
         ),
       ),
-        body: Container(
+        body: SizedBox(
           width: double.infinity,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
