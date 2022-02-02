@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +38,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+   File? imageFile ;
+
+
   String gender = "null";
   late Info person;
   String dropdownValue = 'Ahmedabad';
@@ -45,8 +50,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showError = false;
   final _formKey = GlobalKey<FormState>();
   var items = ["Ahmedabad", "Surat", "Vadodara"];
-   bool _ischecked = false;
+  bool _ischecked = false;
   bool _showErrorchckbx = false;
+
   void _handleGenderChange(String? value) {
     setState(() {
       gender = value!;
@@ -82,7 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   TextFormField(
-
                     decoration: const InputDecoration(
                         icon: Icon(Icons.person),
                         hintText: 'Enter Your Name',
@@ -97,19 +102,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                   TextFormField(
-                    // autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: const InputDecoration(
-                        icon: Icon(Icons.email),
-                        hintText: 'abc@email.com',
-                        labelText: 'E-mail'),
-                    onChanged: (value) {
-                      email = value;
-                    },
-                    validator: (value) => validateEmail(value!)
-                  ),
+                      // autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.email),
+                          hintText: 'abc@email.com',
+                          labelText: 'E-mail'),
+                      onChanged: (value) {
+                        email = value;
+                      },
+                      validator: (value) => validateEmail(value!)),
                   TextFormField(
-                    // autovalidateMode: AutovalidateMode.always,
-                    keyboardType: TextInputType.number,
+                      // autovalidateMode: AutovalidateMode.always,
+                      keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                           icon: Icon(Icons.dialpad),
@@ -122,10 +126,26 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (value == null || value.isEmpty) {
                           return "Please enter your Number";
                         }
-                        if (value.length < 10 ) {
+                        if (value.length < 10) {
                           return "Please enter a valid Number";
                         }
                       }),
+                  TextFormField(
+                      maxLines: 3,
+                      // textAlignVertical: TextAlignVertical.top,
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.home),
+                          hintText: 'Enter your address',
+                          labelText: 'Address'),
+                      onChanged: (value) {
+                               var address = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter your Address";
+                        }
+                      }
+                      ),
                   Padding(
                     padding: const EdgeInsets.only(left: 15.0, top: 10),
                     child: Row(
@@ -140,8 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   groupValue: gender),
                               const Text(
                                 "Male",
-                                style:
-                                    TextStyle(fontSize: 12, color: Colors.green),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.green),
                               ),
                             ],
                           ),
@@ -156,8 +176,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   groupValue: gender),
                               const Text(
                                 "Female",
-                                style:
-                                    TextStyle(fontSize: 12, color: Colors.green),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.green),
                               ),
                             ],
                           ),
@@ -172,8 +192,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   groupValue: gender),
                               const Text(
                                 "Neither",
-                                style:
-                                    TextStyle(fontSize: 12, color: Colors.green),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.green),
                               ),
                             ],
                           ),
@@ -183,9 +203,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   _showError
                       ? const Text(
-                        "Please select a value ",
-                        style: TextStyle(color: Colors.red),
-                      )
+                          "Please select a value ",
+                          style: TextStyle(color: Colors.red),
+                        )
                       : Container(),
                   DropdownButton(
                       value: dropdownValue,
@@ -203,22 +223,61 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           dropdownValue = value!;
                         });
-                      }
-                      ),
+                      }),
+                  Container(
+                      child: imageFile == null
+                          ? Container(
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  RaisedButton(
+                                    color: Colors.greenAccent,
+                                    onPressed: () {
+                                      _getFromGallery();
+                                    },
+                                    child: Text("PICK FROM GALLERY"),
+                                  ),
+                                  Container(
+                                    height: 40.0,
+                                  ),
+                                  RaisedButton(
+                                    color: Colors.lightGreenAccent,
+                                    onPressed: () {
+                                      _getFromCamera();
+                                    },
+                                    child: Text("PICK FROM CAMERA"),
+                                  )
+                                ],
+                              ),
+                            )
+                          : Container(
+                             color: Colors.white,
+                              child: Image.file(
+                                imageFile!,
+                                fit: BoxFit.cover,
+                              ),
+                            )),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Checkbox(value: _ischecked,onChanged: (value) {
-                        setState(() {
-                          _ischecked = value!;
-                          if(_ischecked) _showErrorchckbx = false;
-                        });
-                      }),
+                      Checkbox(
+                          value: _ischecked,
+                          onChanged: (value) {
+                            setState(() {
+                              _ischecked = value!;
+                              if (_ischecked) _showErrorchckbx = false;
+                            });
+                          }),
                       const Text("Please check this box to continue")
                     ],
                   ),
-                  _showErrorchckbx ?
-                      Text("Please check the above box to Continue ",style: TextStyle(color: Colors.red),):Container(),
+                  _showErrorchckbx
+                      ? const Text(
+                          "Please check the above box to Continue ",
+                          style: TextStyle(color: Colors.red),
+                        )
+                      : Container(),
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0),
                     child: TextButton(
@@ -229,12 +288,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                 city: dropdownValue,
                                 number: number,
                                 name: name,
-                                gender: gender);
+                                gender: gender, imageFile: imageFile!);
                             if (gender == "null") {
                               _showError = true;
                               return;
                             }
-                            if(_ischecked == false) {
+                            if (_ischecked == false) {
                               _showErrorchckbx = true;
                               return;
                             }
@@ -255,5 +314,37 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  // ImagePicker newimg = ImagePicker();
+  _getFromGallery() async {
+    print("getfromgallery Started");
+    XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 200,
+      maxWidth: 200,
+    );
+    
+    if (pickedFile != null) {
+
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+    print("cool02");
+  }
+
+  _getFromCamera() async {
+
+    XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      maxHeight: 100,
+      maxWidth: 100,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
   }
 }

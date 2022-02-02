@@ -34,6 +34,9 @@ class SecondPage extends StatelessWidget {
               const SizedBox(
                 height: 5,
               ),
+              Container(
+                child: Image.file(person.imageFile,fit: BoxFit.cover),
+              )
             ],
           ),
         ));
