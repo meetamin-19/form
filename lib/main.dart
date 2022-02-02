@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 TextFormField(
+
                   decoration: const InputDecoration(
                       icon: Icon(Icons.person),
                       hintText: 'Enter Your Name',
@@ -78,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
                 TextFormField(
+                  keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                         icon: Icon(Icons.dialpad),
                         hintText: 'Enter your Number',
